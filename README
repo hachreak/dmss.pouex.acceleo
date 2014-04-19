@@ -18,5 +18,6 @@
  */
 
 This project contains a implementation M2T (Model2Text) of the meta-model dmss.pouex.
-From a .ecore meta-model to a concrete implementation as HTML5 application (HTML5 + Bootstrap + AngularJS).
+From a .ecore meta-model to a concrete implementation as HTML5 application (HTML5 + 
+Bootstrap + AngularJS).
 Enjoy it... :D
