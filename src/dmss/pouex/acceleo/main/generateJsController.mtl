@@ -1,0 +1,150 @@
+[comment encoding = UTF-8 /]
+[module generateJsController('http://pouexmm/1.0')]
+[import dmss::pouex::acceleo::main::generateUtils/]
+
+[comment]
+/**
+ * Copyright (C) 2014 Leonardo Rossi <leonardo.rossi@studenti.unipr.it>
+ *
+ * This source code is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This source code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this source code; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ */
+[/comment]
+
+[template public generateGameJsController(aGame : Game)]
+[comment @main comment Generate Controller /]
+[file ('js/'+ aGame.name +'Controller.js', false, 'UTF-8')]
+var PouexApp = angular.module("PouexApp", [ '[' /] ]);
+
+PouexApp.controller('CtrlMenu', function($scope, $http){
+  // load model
+  $http.get('model/[aGame.name/].json').success(function(data) {
+    $scope.game = data;
+  });
+
+  [for (s : State | aGame.pouex.states)]
+    [s.activationConditions.generateActivationCondition(s)/]
+    [s.generateStateActivationEventCatcher()/]
+  [/for]
+
+  // execute a action: manipupate feature value
+  $scope.executeAction = function(name){
+     angular.forEach($scope.game.pouex.actions[ '[' /] name ], function(value, key){
+       var operation = value.operation;
+       var operator = value.operator; 
+       var fname = value.feature;
+       var fvalue = $scope.game.pouex.features[ '[' /] fname ].value;
+       var fmax = $scope.game.pouex.features[ '[' /] fname ].maximum;
+       var fmin = $scope.game.pouex.features[ '[' /] fname ].minimum;
+
+       var ret = eval(fvalue + operator + operation);
+
+       if(ret <= fmax && ret >= fmin){
+          $scope.game.pouex.features[ '[' /] fname ].value = ret;
+       }
+     });
+  };
+
+  // implement a repeated event
+  [aGame.pouex.actions->selectByKind(RepeatedAction).generateControllerRepeatedAction()/]
+
+  // Compute a feature value transformation: from number to percetual value
+  $scope.getFeaturePercValue = function(name){
+    if(typeof($scope.game) === "undefined") return 0;
+    return ($scope.game.pouex.features[ '[' /]name].value - $scope.game.pouex.features[ '[' /]name].minimum) * 100 / ($scope.game.pouex.features[ '[' /]name].maximum - $scope.game.pouex.features[ '[' /]name].minimum);
+  };
+});
+	
+[/file]
+[/template]
+
+[template public generateActivationCondition(ac : ActivationCondition, s: State)]
+[/template]
+
+[template public generateActivationCondition(ac : MinThresholdActivationCondition, s: State)]
+// state's activation
+$scope.$watch("game.pouex.features[ '[' /]'[ac.features.name/]'].value", function(){ 
+  if(this.last < [ac.threshold/]){
+    [s.generateControllerActiveState()/]
+  }/*else{
+    [s.generateControllerDeactiveState()/]
+  }*/
+});
+
+[/template]
+
+[template public generateActivationCondition(ac : MaxThresholdActivationCondition, s: State)]
+// state's activation
+$scope.$watch("game.pouex.features[ '[' /]'[ac.features.name/]'].value", function(){ 
+  if(this.last > [ac.threshold/]){
+    [s.generateControllerActiveState(s)/]
+  }/*else{
+    [s.generateControllerDeactiveState()/]
+  }*/
+});
+
+[/template]
+
+[template public generateActivationCondition(ac : StateActivationCondition, s: State)]
+// state's activation from another state active
+$scope.$watch("game.pouex.states[ '[' /]'[ac.state.name/]'].active", function(){ 
+  if([if (ac.condition = false) ]![/if]this.last){
+    [s.generateControllerActiveState(s)/]
+  }/*else{
+    [s.generateControllerDeactiveState()/]
+  }*/
+});
+
+[/template]
+
+[template public generateStateActivationEventCatcher(s : State)][/template]
+
+[template public generateStateActivationEventCatcher(s : StateDead)]
+  // catch state activation
+  $scope.$watch("game.pouex.states[ '[' /]'[s.name/]'].active", function(){ 
+    if(this.last){
+      // if dead, end the game
+      $('#state-dead').modal();
+    }
+  });  
+	
+[/template]
+
+[template public generateControllerRepeatedAction(ra : RepeatedAction)]
+  var [ra.name/]Timer = setInterval(function(){
+    $scope.executeAction('[ra.name/]');
+    $scope.$apply();
+  }, [ra.eachMillisec/]);
+
+[/template]
+
+[template public generateControllerActiveState(s: State)]
+  [for (ba : BodyAlteration | s.bodyAlterations)]
+    // state animation 
+    $scope.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].imageUrl = 'imgs/[ba.image/]';
+  [/for]
+  // set in model the activation
+  $scope.game.pouex.states.[s.name/].active = true;
+
+[/template]
+
+[template public generateControllerDeactiveState(s: State)]
+  [for (ba : BodyAlteration | s.bodyAlterations)]
+    // state animation 
+    $scope.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].imageUrl = $scope.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].default;
+  [/for]
+  // set in model the activation
+  $scope.game.pouex.states.[s.name/].active = false;
+[/template]
