@@ -34,13 +34,13 @@
            <span class="icon-bar"></span>
            <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="#" onclick="javascript:$('#modal-set-name').modal();">{{game.pouex.name}}</a>
+         <a class="navbar-brand" href="#" onclick="javascript:$('#modal-set-name').modal();">{{$storage.game.pouex.name}}</a>
        </div>
        <div class="navbar-collapse collapse">
          <ul class="nav navbar-nav">
            <li class="active"><a href="#">Home</a></li>
            [aGame.pouex.actions->selectByType(PouexAction).generateHtmlMenuAction()/]
-           <li><a href="#new-game" onclick="javascript:document.location.reload()">New Game</a></li>
+           <li><a href="#new-game" ng-click="PouexNewGame()">New Game</a></li>
          </ul>
        </div><!--/.nav-collapse -->
      </div>
@@ -73,7 +73,7 @@
       <div class="modal-content">
         <div class="modal-header">The End</div>
         <div class="modal-body">
-          Sorry, {{game.pouex.name}} was died...
+          Sorry, {{$storage.game.pouex.name}} was died...
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary btn-lg new-game" onclick="javascript:document.location.reload()">New Game</button>
@@ -87,7 +87,7 @@
       <div class="modal-content">
         <div class="modal-header">Get a new name for Pouex</div>
         <div class="modal-body">
-          <input ng-model="game.pouex.name">
+          <input ng-model="$storage.game.pouex.name">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -112,14 +112,14 @@
 [/template]
 
 [template public generateHtmlBodyParts(b : BodyPart)]
-  <!--<img ng-src="{{game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}}">-->
-  <div id="[b.generateBodyCssFullyQualifiedName()/]" class="body-part" style="background-image: url({{game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}})">
+  <!--<img ng-src="{{$storage.game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}}">-->
+  <div id="[b.generateBodyCssFullyQualifiedName()/]" class="body-part" style="background-image: url({{$storage.game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}})">
     [b.subparts.generateHtmlBodyParts()/]
   </div>  
 [/template]
 
 [template public generateDashboard(f : Feature)]
-  [f.name/]: {{game.pouex.features[ '[' /]'[f.name/]'].value}} [f.MeasurementUnit/]<br>
+  [f.name/]: {{$storage.game.pouex.features[ '[' /]'[f.name/]'].value}} [f.MeasurementUnit/]<br>
   <div class="progress">
     <div class="progress-bar" role="progressbar" aria-valuenow="60" 
       aria-valuemin="0" aria-valuemax="100" style="width: {{getFeaturePercValue('[f.name/]')}}%;">
@@ -130,7 +130,7 @@
 [/template]
 
 [template public generateDashboard(s : State)]
-  <div ng-show="game.pouex.states[ '[' /] '[s.name/]'].active">
+  <div ng-show="$storage.game.pouex.states[ '[' /] '[s.name/]'].active">
     <span class="glyphicon glyphicon-ok"></span> [s.name/]
   </div>
 

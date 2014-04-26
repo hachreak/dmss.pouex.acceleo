@@ -1,5 +1,8 @@
 CHANGELOG
 
+v0.3
+ - Add save capability.
+
 v0.2
  - Update consistency model: in ActivationCondition change features to feature
  - Implementation of generateActivationCondition for AndLogicActivationCondition and OrLogicActivationCondition
