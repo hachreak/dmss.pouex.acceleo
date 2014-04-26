@@ -13,17 +13,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pouex Game</title>
   <link href="libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <script src="libs/angularjs/angular.js"></script>
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[ '[' /]if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![ '[' /]endif]-->
-  <link href="css/style.css" rel="stylesheet">
 
   <link href="css/[aGame.name/].css" rel="stylesheet">
-  <script src="js/[aGame.name +'Controller.js'/]"></script>
 </head>
 <body ng-controller="CtrlMenu">
 
@@ -101,6 +98,9 @@
 
   <script src="libs/jquery/jquery.min.js"></script>
   <script src="libs/bootstrap/js/bootstrap.min.js"></script>
+  <script src="libs/angularjs/angular.js"></script>
+  <script src="libs/angular-ngStorage/ngStorage.js"></script>
+  <script src="js/[aGame.name +'Controller.js'/]"></script>
 </body>
 </html>
 [/file]

@@ -26,16 +26,32 @@
 [template public generateGameJsController(aGame : Game)]
 [comment @main comment Generate Controller /]
 [file ('js/'+ aGame.name +'Controller.js', false, 'UTF-8')]
-var PouexApp = angular.module("PouexApp", [ '[' /] ]);
+var PouexApp = angular.module("PouexApp", [ '[' /] 'ngStorage' ]);
 
-PouexApp.controller('CtrlMenu', function($scope, $http){
+PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', '$localStorage', function($scope, $http, $localStorage){
   // load model
-  $http.get('model/[aGame.name/].json').success(function(data) {
-    $scope.game = data;
-  });
+  
+  //if(typeof $scope.$storage.game == "undefined"){
+    $http.get('model/[aGame.name/].json').success(function(data) {
+      /*$scope.$storage = $localStorage.$default({
+        game: data
+      });*/
+      $scope.game = data;
+    });
+  //}
 
   [for (s : State | aGame.pouex.states)]
-    [s.activationConditions.generateActivationCondition(s)/]
+    // state's activation
+    $scope.$watchCollection("[ '[' /] [for (ac : ActivationCondition | s.activationConditions) separator (', ')][ac.generateActivationConditionListVariableToWatch()/][/for] ]", function(newValues, oldValues){
+      if(typeof $scope.game != "undefined"){
+        if([for (ac : ActivationCondition | s.activationConditions) separator (' || ')][ac.generateActivationConditionIfStatement(s, i - 1)/][/for]){
+          [s.generateControllerActiveState()/]
+        }else{
+         [s.generateControllerDeactiveState()/]
+        }
+      }
+    });
+
     [s.generateStateActivationEventCatcher()/]
   [/for]
 
@@ -65,17 +81,56 @@ PouexApp.controller('CtrlMenu', function($scope, $http){
     if(typeof($scope.game) === "undefined") return 0;
     return ($scope.game.pouex.features[ '[' /]name].value - $scope.game.pouex.features[ '[' /]name].minimum) * 100 / ($scope.game.pouex.features[ '[' /]name].maximum - $scope.game.pouex.features[ '[' /]name].minimum);
   };
-});
+}]);
 	
 [/file]
 [/template]
 
-[template public generateActivationCondition(ac : ActivationCondition, s: State)]
+[template public generateActivationConditionIfStatement(ac : ActivationCondition, s: State, i: Integer) post(trim())][/template]
+
+[template public generateActivationConditionIfStatement(ac : MinThresholdActivationCondition, s: State, index: Integer) post(trim())]
+  newValues[ '[' /] [index/] ] < [ac.threshold/]
 [/template]
+
+[template public generateActivationConditionIfStatement(ac : MaxThresholdActivationCondition, s: State, index: Integer) post(trim())]
+  newValues[ '[' /] [index/] ] > [ac.threshold/]
+[/template]
+
+[template public generateActivationConditionIfStatement(ac : StateActivationCondition, s: State, index: Integer) post(trim())]
+  [if (ac.condition = false) ]![/if]newValues[ '[' /] [index/] ]
+[/template]
+
+[template public generateActivationConditionIfStatement(ac : AndLogicActivationCondition, s: State, index: Integer) post(trim())]
+[let index2 : Integer = index]
+  ( [for (term : ActivationCondition | ac.terms) separator (' && ')][term.generateActivationConditionIfStatement(s, index2 + i - 1)/][/for] )
+[/let]
+[/template]
+
+[template public generateActivationConditionIfStatement(ac : OrLogicActivationCondition, s: State, index: Integer) post(trim())]
+[let index2 : Integer = index]
+  ( [for (term : ActivationCondition | ac.terms) separator (' || ')][term.generateActivationConditionIfStatement(s, index2 + i - 1)/][/for] )
+[/let]
+[/template]
+
+[template public generateActivationConditionListVariableToWatch(ac : ActivationCondition) post(trim())][/template]
+
+[template public generateActivationConditionListVariableToWatch(ac : ThresholdActivationCondition) post(trim())]
+  game.pouex.features[ '[' /]'[ac.feature.name/]'].value
+[/template]
+
+[template public generateActivationConditionListVariableToWatch(ac : StateActivationCondition) post(trim())]
+  game.pouex.states[ '[' /]'[ac.state.name/]'].active
+[/template]
+
+[template public generateActivationConditionListVariableToWatch(ac : LogicActivationCondition) post(trim())]
+  [for (term : ActivationCondition | ac.terms) separator (', ')][term.generateActivationConditionListVariableToWatch()/][/for]
+[/template]
+
+[template public generateActivationCondition(ac : ActivationCondition, s: State)][/template]
 
 [template public generateActivationCondition(ac : MinThresholdActivationCondition, s: State)]
 // state's activation
-$scope.$watch("game.pouex.features[ '[' /]'[ac.features.name/]'].value", function(){ 
+$scope.$watch("game.pouex.features[ '[' /]'[ac.feature.name/]'].value", function(){ 
   if(this.last < [ac.threshold/]){
     [s.generateControllerActiveState()/]
   }/*else{
@@ -85,9 +140,9 @@ $scope.$watch("game.pouex.features[ '[' /]'[ac.features.name/]'].value", functio
 
 [/template]
 
-[template public generateActivationCondition(ac : MaxThresholdActivationCondition, s: State)]
+[comment][template public generateActivationCondition(ac : MaxThresholdActivationCondition, s: State)]
 // state's activation
-$scope.$watch("game.pouex.features[ '[' /]'[ac.features.name/]'].value", function(){ 
+$scope.$watch("game.pouex.features[ '[' /]'[ac.feature.name/]'].value", function(){ 
   if(this.last > [ac.threshold/]){
     [s.generateControllerActiveState(s)/]
   }/*else{
@@ -108,6 +163,11 @@ $scope.$watch("game.pouex.states[ '[' /]'[ac.state.name/]'].active", function(){
 });
 
 [/template]
+
+[template public generateActivationCondition(ac : AndLogicActivationCondition, s: State)]
+
+
+[/template][/comment]
 
 [template public generateStateActivationEventCatcher(s : State)][/template]
 
