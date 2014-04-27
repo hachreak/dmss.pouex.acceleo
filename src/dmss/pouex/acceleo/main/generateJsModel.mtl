@@ -28,7 +28,8 @@
 {
   "name": "[aGame.name/]",
   "pouex": {
-    "name": "[aGame.pouex.name/]", 
+    "name": "[aGame.pouex.name/]",
+    "birthday": "[aGame.pouex.birthday/]", 
     "body": {
       [aGame.pouex.bodyparts.generateModelBodyPart()/]
     },

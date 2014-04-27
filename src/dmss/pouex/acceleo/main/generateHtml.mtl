@@ -58,6 +58,7 @@
 
       <div class="panel panel-default game-dashboard col-md-4">
         <div class="panel-body">
+          Birthday of {{$storage.game.pouex.name}}: {{$storage.game.pouex.birthday | date:'dd-MM-yyyy'}}<br>
           [aGame.pouex.features.generateDashboard()/]
           [aGame.pouex.states.generateDashboard()/]
         </div>
