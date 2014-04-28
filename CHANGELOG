@@ -1,5 +1,8 @@
 CHANGELOG
 
+v0.6
+ - Fix bug: Know issues: when generated ActivationCondition nested with And and Or, the index value can be not corrected!
+
 v0.5
  - Fix subparts json model generation.
  - Css: put all subparts height, width, top and left in px instead %.

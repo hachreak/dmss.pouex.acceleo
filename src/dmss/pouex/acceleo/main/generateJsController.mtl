@@ -67,6 +67,7 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
       // state's activation
       $scope.$watchCollection("[ '[' /] [for (ac : ActivationCondition | s.activationConditions) separator (', ')][ac.generateActivationConditionListVariableToWatch()/][/for] ]", function(newValues, oldValues){
         if(typeof $scope.$storage.game != "undefined"){
+          var i = 0;
           if([for (ac : ActivationCondition | s.activationConditions) separator (' || ')][ac.generateActivationConditionIfStatement(s, i - 1)/][/for]){
             // set in model the activation
             [s.generateStateVariable()/].active = true;
@@ -147,15 +148,15 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
 [template public generateActivationConditionIfStatement(ac : ActivationCondition, s: State, i: Integer) post(trim())][/template]
 
 [template public generateActivationConditionIfStatement(ac : MinThresholdActivationCondition, s: State, index: Integer) post(trim())]
-  newValues[ '[' /] [index/] ] < [ac.threshold/]
+  newValues[ '[' /] i++ ] < [ac.threshold/]
 [/template]
 
 [template public generateActivationConditionIfStatement(ac : MaxThresholdActivationCondition, s: State, index: Integer) post(trim())]
-  newValues[ '[' /] [index/] ] > [ac.threshold/]
+  newValues[ '[' /] i++ ] > [ac.threshold/]
 [/template]
 
 [template public generateActivationConditionIfStatement(ac : StateActivationCondition, s: State, index: Integer) post(trim())]
-  [if (ac.condition = false) ]![/if]newValues[ '[' /] [index/] ]
+  [if (ac.condition = false) ]![/if]newValues[ '[' /] i++ ]
 [/template]
 
 [template public generateActivationConditionIfStatement(ac : AndLogicActivationCondition, s: State, index: Integer) post(trim())]
