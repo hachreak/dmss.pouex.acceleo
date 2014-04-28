@@ -4,7 +4,7 @@
 
 [template public generateGameHtml(aGame : Game)]
 [comment @main/]
-[file (aGame.name +'.html', false, 'UTF-8')] 
+[file (aGame.name.generateUnderscoreName() +'.html', false, 'UTF-8')] 
 <!doctype html>
 <html lang="en" ng-app="PouexApp">
 <head>
@@ -20,7 +20,7 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![ '[' /]endif]-->
 
-  <link href="css/[aGame.name/].css" rel="stylesheet">
+  <link href="css/[aGame.name.generateUnderscoreName()/].css" rel="stylesheet">
 </head>
 <body ng-controller="CtrlMenu">
 
@@ -101,7 +101,7 @@
   <script src="libs/bootstrap/js/bootstrap.min.js"></script>
   <script src="libs/angularjs/angular.js"></script>
   <script src="libs/angular-ngStorage/ngStorage.js"></script>
-  <script src="js/[aGame.name +'Controller.js'/]"></script>
+  <script src="js/[aGame.name.generateUnderscoreName() +'Controller.js'/]"></script>
 </body>
 </html>
 [/file]
@@ -109,30 +109,29 @@
 
 
 [template public generateHtmlMenuAction(a : Action)]
-  <li><a href="#[a.name/]" ng-click="executeAction('[a.name/]')">[a.name/]</a></li>
+  <li><a href="#[a.name.generateUnderscoreName()/]" ng-click="executeAction('[a.name.generateUnderscoreName()/]')">[a.name.generateUnderscoreName()/]</a></li>
 [/template]
 
-[template public generateHtmlBodyParts(b : BodyPart)]
-  <!--<img ng-src="{{$storage.game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}}">-->
+[template public generateHtmlBodyParts(b : BodyPart) post(trim() + '\n')]
   <div id="[b.generateBodyCssFullyQualifiedName()/]" class="body-part" style="background-image: url({{$storage.game.pouex.body.[b.generateBodyFullyQualifiedName()/].imageUrl}})">
     [b.subparts.generateHtmlBodyParts()/]
   </div>  
 [/template]
 
 [template public generateDashboard(f : Feature)]
-  [f.name/]: {{$storage.game.pouex.features[ '[' /]'[f.name/]'].value}} [f.MeasurementUnit/]<br>
+  [f.name.generateUnderscoreName()/]: {{$storage.game.pouex.features[ '[' /]'[f.name.generateUnderscoreName()/]'].value}} [f.MeasurementUnit/]<br>
   <div class="progress">
     <div class="progress-bar" role="progressbar" aria-valuenow="60" 
-      aria-valuemin="0" aria-valuemax="100" style="width: {{getFeaturePercValue('[f.name/]')}}%;">
-        {{getFeaturePercValue('[f.name/]') |number:2}}%
+      aria-valuemin="0" aria-valuemax="100" style="width: {{getFeaturePercValue('[f.name.generateUnderscoreName()/]')}}%;">
+        {{getFeaturePercValue('[f.name.generateUnderscoreName()/]') |number:2}}%
     </div>
   </div><!-- /.progress -->
 
 [/template]
 
 [template public generateDashboard(s : State)]
-  <div ng-show="$storage.game.pouex.states[ '[' /] '[s.name/]'].active">
-    <span class="glyphicon glyphicon-ok"></span> [s.name/]
+  <div ng-show="$storage.game.pouex.states[ '[' /] '[s.name.generateUnderscoreName()/]'].active">
+    <span class="glyphicon glyphicon-ok"></span> [s.name.generateUnderscoreName()/]
   </div>
 
 [/template]

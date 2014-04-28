@@ -1,5 +1,6 @@
 [comment encoding = UTF-8 /]
 [module generateJsModel('http://pouexmm/1.0')]
+[import dmss::pouex::acceleo::main::generateUtils/]
 
 [comment]
 /**
@@ -24,18 +25,20 @@
 
 [template public generateGameJsModel(aGame : Game)]
 [comment @main Generate Json Model/]
-[file ('model/'+ aGame.name +'.json', false, 'UTF-8')] 
+[file ('model/'+ aGame.name.generateUnderscoreName() +'.json', false, 'UTF-8')] 
 {
-  "name": "[aGame.name/]",
+  "name": "[aGame.name.generateUnderscoreName()/]",
   "pouex": {
-    "name": "[aGame.pouex.name/]",
+    "name": "[aGame.pouex.name.generateUnderscoreName()/]",
     "birthday": "[aGame.pouex.birthday/]", 
     "body": {
-      [aGame.pouex.bodyparts.generateModelBodyPart()/]
+      [for (bp : BodyPart | aGame.pouex.bodyparts) separator('  ,\n')]
+      	[bp.generateModelBodyPart()/]
+      [/for]
     },
 	"features": {
     [for (f : Feature | aGame.pouex.features) separator('      ,\n')]
-      "[f.name/]": {
+      "[f.name.generateUnderscoreName()/]": {
   	    "value": [f.default/],
 	    "default": [f.default/],
   	    "minimum": [f.minimum/],
@@ -46,17 +49,17 @@
     },
     "states": {
     [for (s : State | aGame.pouex.states) separator('      ,\n')]
-      "[s.name/]": {
+      "[s.name.generateUnderscoreName()/]": {
         "active": false
       }
     [/for]
     },
     "actions": {
     [for (a : Action | aGame.pouex.actions) separator('      ,\n')]
-      "[a.name/]": [ '[' /] 
+      "[a.name.generateUnderscoreName()/]": [ '[' /] 
       [for (i : Influence | a.influences) separator('        ,\n')]
         {
-      	  "feature": "[i.feature.name/]",
+      	  "feature": "[i.feature.name.generateUnderscoreName()/]",
           "operation": "[i.value/]",
           "operator": "[i.generateMathOperator()/]"
         }
@@ -70,15 +73,15 @@
 [/template]
 
 [template public generateModelBodyPart(bp : BodyPart) post(trim())]
-  [for (b : BodyPart | bp) separator('        ,\n')]
-    "[b.name/]": {
-      "imageUrl": "imgs/[b.image/]",
-      "default": "imgs/[b.image/]",
-      "subparts": { 
-        [b.subparts.generateModelBodyPart()/]
-      }
-    }
+"[bp.name.generateUnderscoreName()/]": {
+  "imageUrl": "imgs/[bp.image/]",
+  "default": "imgs/[bp.image/]",
+  "subparts": {
+  [for (sp : BodyPart | bp.subparts) separator('    ,\n')]
+    [sp.generateModelBodyPart()/]
   [/for]
+  }
+}
 [/template]
 
 [template public generateMathOperator(i : Influence) post(trim())]

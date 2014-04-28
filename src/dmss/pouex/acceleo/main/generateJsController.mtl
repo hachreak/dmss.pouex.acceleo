@@ -25,7 +25,7 @@
 
 [template public generateGameJsController(aGame : Game)]
 [comment @main comment Generate Controller /]
-[file ('js/'+ aGame.name +'Controller.js', false, 'UTF-8')]
+[file ('js/'+ aGame.name.generateUnderscoreName() +'Controller.js', false, 'UTF-8')]
 var PouexApp = angular.module("PouexApp", [ '[' /] 'ngStorage' ]);
 
 PouexApp.factory('PouexDataService', [ '[' /] '$http', '$localStorage', '$q', function($http, $localStorage, $q) {
@@ -33,7 +33,7 @@ PouexApp.factory('PouexDataService', [ '[' /] '$http', '$localStorage', '$q', fu
     var getData = function() {
         var deferred = $q.defer();
 
-        $http({method:"GET", url:"model/[aGame.name/].json"}).success(function(data){
+        $http({method:"GET", url:"model/[aGame.name.generateUnderscoreName()/].json"}).success(function(data){
             // init local storage
             $storage = $localStorage.$default({
               game: data
@@ -68,9 +68,28 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
       $scope.$watchCollection("[ '[' /] [for (ac : ActivationCondition | s.activationConditions) separator (', ')][ac.generateActivationConditionListVariableToWatch()/][/for] ]", function(newValues, oldValues){
         if(typeof $scope.$storage.game != "undefined"){
           if([for (ac : ActivationCondition | s.activationConditions) separator (' || ')][ac.generateActivationConditionIfStatement(s, i - 1)/][/for]){
-            [s.generateControllerActiveState()/]
+            // set in model the activation
+            [s.generateStateVariable()/].active = true;
           }else{
-           [s.generateControllerDeactiveState()/]
+           // set in model the activation
+           [s.generateStateVariable()/].active = false;
+          }
+        }
+      });
+
+      $scope.$watch("[s.generateStateVariableToWatch()/]", function(newValue, oldValue){
+        if(typeof $scope.$storage.game != "undefined"){
+          if(newValue){
+            [for (ba : BodyAlteration | s.bodyAlterations)]
+            	[ba.bodyPart.generateStateVariable()/].default = [ba.bodyPart.generateStateVariable()/].imageUrl;
+              // state animation 
+              [ba.bodyPart.generateStateVariable()/].imageUrl = 'imgs/[ba.image/]'; 
+            [/for]
+          }else{
+            [for (ba : BodyAlteration | s.bodyAlterations)]
+              // restore animation 
+              [ba.bodyPart.generateStateVariable()/].imageUrl = [ba.bodyPart.generateStateVariable()/].default;
+            [/for]
           }
         }
       });
@@ -80,20 +99,27 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
 
     // execute a action: manipupate feature value
     $scope.executeAction = function(name){
-      angular.forEach($scope.$storage.game.pouex.actions[ '[' /] name ], function(value, key){
-        var operation = value.operation;
-        var operator = value.operator; 
-        var fname = value.feature;
-        var fvalue = $scope.$storage.game.pouex.features[ '[' /] fname ].value;
-        var fmax = $scope.$storage.game.pouex.features[ '[' /] fname ].maximum;
-        var fmin = $scope.$storage.game.pouex.features[ '[' /] fname ].minimum;
+      if(typeof $scope.$storage.game != "undefined"){
+        angular.forEach($scope.$storage.game.pouex.actions[ '[' /] name ], function(value, key){
+          var operation = value.operation;
+          var operator = value.operator; 
+          var fname = value.feature;
+          var fvalue = $scope.$storage.game.pouex.features[ '[' /] fname ].value;
+          var fmax = $scope.$storage.game.pouex.features[ '[' /] fname ].maximum;
+          var fmin = $scope.$storage.game.pouex.features[ '[' /] fname ].minimum;
 
-        var ret = eval(fvalue + operator + operation);
+          var ret = eval(fvalue + operator + operation);
 
-        if(ret <= fmax && ret >= fmin){
+          if(ret > fmax){
+            ret = fmax;
+          }
+          if(ret < fmin){
+            ret = fmin;
+          }
+
           $scope.$storage.game.pouex.features[ '[' /] fname ].value = ret;
-        }
-      });
+        });
+      }
     };
 
     // implement a repeated event
@@ -147,11 +173,23 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
 [template public generateActivationConditionListVariableToWatch(ac : ActivationCondition) post(trim())][/template]
 
 [template public generateActivationConditionListVariableToWatch(ac : ThresholdActivationCondition) post(trim())]
-  $storage.game.pouex.features[ '[' /]'[ac.feature.name/]'].value
+  $storage.game.pouex.features[ '[' /]'[ac.feature.name.generateUnderscoreName()/]'].value
 [/template]
 
 [template public generateActivationConditionListVariableToWatch(ac : StateActivationCondition) post(trim())]
-  $storage.game.pouex.states[ '[' /]'[ac.state.name/]'].active
+  $storage.game.pouex.states[ '[' /]'[ac.state.name.generateUnderscoreName()/]'].active
+[/template]
+
+[template public generateStateVariableToWatch(s : State) post(trim())]
+  $storage.game.pouex.states[ '[' /]'[s.name.generateUnderscoreName()/]'].active
+[/template]
+
+[template public generateStateVariable(s : State) post(trim())]
+  $scope.$storage.game.pouex.states.[s.name.generateUnderscoreName()/]
+[/template]
+
+[template public generateStateVariable(bp : BodyPart) post(trim())]
+  $scope.$storage.game.pouex.body.[bp.generateBodyFullyQualifiedName()/]
 [/template]
 
 [template public generateActivationConditionListVariableToWatch(ac : LogicActivationCondition) post(trim())]
@@ -162,7 +200,7 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
 
 [template public generateStateActivationEventCatcher(s : StateDead)]
   // catch state activation
-  $scope.$watch("$storage.game.pouex.states[ '[' /]'[s.name/]'].active", function(){
+  $scope.$watch("$storage.game.pouex.states[ '[' /]'[s.name.generateUnderscoreName()/]'].active", function(){
     // if dead 
     if(this.last){
       // reset memory
@@ -175,28 +213,10 @@ PouexApp.controller('CtrlMenu', [ '[' /] '$scope', '$http', 'PouexDataService', 
 [/template]
 
 [template public generateControllerRepeatedAction(ra : RepeatedAction)]
-  var [ra.name/]Timer = setInterval(function(){
-    $scope.executeAction('[ra.name/]');
+  var [ra.name.generateUnderscoreName()/]_timer = setInterval(function(){
+    $scope.executeAction('[ra.name.generateUnderscoreName()/]');
     $scope.$apply();
   }, [ra.eachMillisec/]);
 
 [/template]
 
-[template public generateControllerActiveState(s: State)]
-  [for (ba : BodyAlteration | s.bodyAlterations)]
-    // state animation 
-    $scope.$storage.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].imageUrl = 'imgs/[ba.image/]';
-  [/for]
-  // set in model the activation
-  $scope.$storage.game.pouex.states.[s.name/].active = true;
-
-[/template]
-
-[template public generateControllerDeactiveState(s: State)]
-  [for (ba : BodyAlteration | s.bodyAlterations)]
-    // state animation 
-    $scope.$storage.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].imageUrl = $scope.$storage.game.pouex.body.[ba.bodyPart.generateBodyFullyQualifiedName()/].default;
-  [/for]
-  // set in model the activation
-  $scope.$storage.game.pouex.states.[s.name/].active = false;
-[/template]

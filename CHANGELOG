@@ -1,5 +1,15 @@
 CHANGELOG
 
+v0.5
+ - Fix subparts json model generation.
+ - Css: put all subparts height, width, top and left in px instead %.
+ - Fix css generation.
+ - Fix generateBodyFullyQualifiedName() name generator.
+ - Fix minimum and maximum when a action is executed and it's going to change a feature.
+ - Fix name with space > undescore_name.
+ - Change the implementation of body alterations of states.
+ - Know issues: when generated ActivationCondition nested with And and Or, the index value can be not corrected!
+
 v0.4
  - Add Birthday.
 

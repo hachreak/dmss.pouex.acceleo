@@ -25,28 +25,33 @@
 
 [template public generateGameCss(aGame : Game)]
 [comment @main Generate Css for Game /]
-[file ('css/'+ aGame.name +'.css', false, 'UTF-8')]
+[file ('css/'+ aGame.name.generateUnderscoreName() +'.css', false, 'UTF-8')]
 .body-part{
   display: inline-block;
   position: relative;
 }
-[aGame.pouex.bodyparts.generateBodyCssId()/]
-[/file]
-[/template]
-
-[template public generateBodyCssId(bp : BodyPart) post(trim())]
 .main{ margin-top: 5em; }
 .main .jumbotron{ padding-top: 1em; }
 /*.game-panel > div{ width: 50%; margin: 0px auto;  }*/
 .game-panel img{ width: 100%; }
 .game-panel-body{ height: 250px; }
+
+[aGame.pouex.bodyparts.generateBodyCssId()/]
+
+[/file]
+[/template]
+
+[template public generateBodyCssId(bp : BodyPart) post(trim()+'\n')]
+
 #[bp.generateBodyCssFullyQualifiedName()/]{
   /*background: transparent url('../imgs/[bp.image/]');*/
   background-size: cover; 
-  width: [bp.width/]%;
-  height: [bp.height/]%;
-  top: [bp.top/]%;
-  left: [bp.left/]%;
+  width: [bp.width/]px;
+  height: [bp.height/]px;
+  top: [bp.top/]px;
+  left: [bp.left/]px;
 }
+
 [bp.subparts.generateBodyCssId()/]
+
 [/template]
