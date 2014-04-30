@@ -6,8 +6,10 @@
     <!-- The classpath with only the dependencies used by the project -->
     <path id="dmss.pouex.acceleo.libraryclasspath">
         <pathelement location="${ECLIPSE_WORKSPACE}/dmss.pouex.acceleo/bin"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.core.runtime_3.9.0.v20130326-1255.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.core.runtime_3.9.100.v20131218-1515.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/javax.annotation_1.1.0.v201209060031.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/javax.inject_1.0.0.v20091030.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.osgi_3.9.1.v20140110-1610.jar"/>
         <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.equinox.common_3.6.200.v20130402-1505.jar"/>
         <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.core.jobs_3.5.300.v20130429-1813.jar"/>
         <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.core.runtime.compatibility.registry_3.5.200.v20130514-1256/runtime_registry_compatibility.jar"/>
